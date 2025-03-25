@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Configuration;
+using System.Drawing;
 
 namespace ActualizarPrecios
 {
@@ -133,7 +134,7 @@ namespace ActualizarPrecios
 								var impuestoResult = await cmd.ExecuteScalarAsync();
 								if (impuestoResult == null)
 								{
-									throw new Exception($"No se encontró un impuesto para el código {TxtCodigo.Text}.");
+									throw new Exception($"No existe el código {TxtCodigo.Text} en la base de datos de {connection.DataSource}");
 								}
 
 								double imp = double.Parse(impuestoResult.ToString());
@@ -194,7 +195,9 @@ namespace ActualizarPrecios
 		private async Task MostrarMensaje()
 		{
 			lblPrecioActualizado.Text = "Precio Actualizado!";
+			lblPrecioActualizado.ForeColor = ColorTranslator.FromHtml("#A3BFD9");
 			await Task.Delay(3000);
+			lblPrecioActualizado.ForeColor = Color.Black;
 			lblPrecioActualizado.Text = "";
 		}
 
