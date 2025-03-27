@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Configuration;
 using System.Drawing;
+using System.Data;
 
 namespace ActualizarPrecios
 {
@@ -25,22 +26,34 @@ namespace ActualizarPrecios
 
 		private void BtnSearchProduct_Click(object sender, EventArgs e)
 		{
-			FrmProducto frm = new FrmProducto
+			FrmProducto frm = new FrmProducto(rbJardines.Checked ? "labajadita1" : "labajadita2")
 			{
 				SendProduct = GetProduct
 			};
 			frm.ShowDialog();
 		}
 
-		double costoUCO = 0;
+		private void AplicarFiltros()
+		{
+			dataGridView1.Columns[0].ReadOnly = true;
+			dataGridView1.Columns[2].ReadOnly = true;
+
+			dataGridView1.Columns[0].SortMode = DataGridViewColumnSortMode.NotSortable;
+			dataGridView1.Columns[1].SortMode = DataGridViewColumnSortMode.NotSortable;
+			dataGridView1.Columns[2].SortMode = DataGridViewColumnSortMode.NotSortable;
+		}
+
+		decimal costoUCO = 0;
 
 		public async Task SetProduct(string codigo)
 		{
 			TxtPrecioNuevo.Text = "";
-			MySqlConnection con = new MySqlConnection(ConfigurationManager.ConnectionStrings["labajadita1"].ToString());
+			MySqlConnection con = new MySqlConnection(ConfigurationManager.ConnectionStrings[rbJardines.Checked ? "labajadita1" : "labajadita2"].ToString());
 			try
 			{
 				await con.OpenAsync();
+
+				//Con esto recupero el precio base
 				MySqlCommand cmd = new MySqlCommand("select tblcatarticulos.cod1_art, des1_art, pre_iva, cos_uco " +
 					"from tblcatarticulos " +
 					"inner join tblundcospreart on tblcatarticulos.cod1_art=tblundcospreart.cod1_art " +
@@ -51,25 +64,45 @@ namespace ActualizarPrecios
 
 				if (result.Read())
 				{
-					double precioVenta = double.Parse(result.GetString(2));
-					costoUCO = double.Parse(result.GetString(3));
+					decimal precioVenta = decimal.Parse(result.GetString(2));
+					costoUCO = decimal.Parse(result.GetString(3));
 
 					TxtCodigo.Text = result.GetString(0);
 					lblDescripcion.Text = result.GetString(1);
 					lblPrecio.Text = "$" + precioVenta.ToString();
 					lblCosto.Text = "$" + costoUCO.ToString();
 
-					double margen = ((precioVenta - costoUCO) / precioVenta) * 100;
+					decimal margen = ((precioVenta - costoUCO) / precioVenta) * 100;
 					lblMargen.Text = margen.ToString("N2") + "%";
+					result.Close();
+
+					//Aqui cargo la lista de precios
+					cmd.CommandText = "select case when Cod_Precio = '' then 'General' else cod_precio end as Lista ,precios.pre_iva as Precio, round( ((precios.PRE_IVA- cos.COS_UCO)/precios.Pre_iva)*100,2) as Margen " +
+						"from tblprecios precios " +
+						"inner join tblundcospreart cos on cos.cod1_art=precios.COD1_ART " +
+						$"where precios.COD1_ART='{TxtCodigo.Text}';";
+
+					DataTable precios = new DataTable();
+
+					MySqlDataAdapter ad = new MySqlDataAdapter(cmd);
+
+					ad.Fill(precios);
+
+					//Por ultimo, muestro los precios
+					dataGridView1.DataSource = precios;
+					AplicarFiltros();
+
+					TxtPrecioNuevo.Focus();
 				}
 				else
 				{
+					dataGridView1.DataSource = null;
 					lblDescripcion.Text = "Producto no encontrado";
 					lblPrecio.Text = "";
 					lblCosto.Text = "";
 					lblMargen.Text = "";
 				}
-				result.Close();
+
 			}
 			catch (MySqlException ex)
 			{
@@ -89,10 +122,7 @@ namespace ActualizarPrecios
 		private async void TxtCodigo_TextChanged(object sender, EventArgs e)
 		{
 			await Task.Delay(1000);
-			TxtCodigo.Enabled = false;
 			await SetProduct(TxtCodigo.Text);
-			TxtCodigo.Enabled = true;
-			TxtCodigo.Focus();
 		}
 
 		private async void BtnUpdate_Click(object sender, EventArgs e)
@@ -144,16 +174,29 @@ namespace ActualizarPrecios
 
 								cmd.CommandText = $"UPDATE tblundcospreart " +
 												  $"SET PRE_UND = {precioBase}, PRE_IVA = {TxtPrecioNuevo.Text} " +
-												  $"WHERE COD1_ART = '{TxtCodigo.Text}'; " +
-												  $"UPDATE tblprecios " +
-												  $"SET PRE_ART = {precioBase}, PRE_IVA = {TxtPrecioNuevo.Text} " +
-												  $"WHERE COD1_ART = '{TxtCodigo.Text}' AND COD_LISTA = 1;";
+												  $"WHERE COD1_ART = '{TxtCodigo.Text}'; ";
+								/*+
+								$"UPDATE tblprecios " +
+								$"SET PRE_ART = {precioBase}, PRE_IVA = {TxtPrecioNuevo.Text} " +
+								$"WHERE COD1_ART = '{TxtCodigo.Text}' AND COD_LISTA = 1;";
+								*/
 
-								int afectados = await cmd.ExecuteNonQueryAsync();
+								int principal = await cmd.ExecuteNonQueryAsync();
 
-								if (afectados == 0)
+								if (principal == 0)
 								{
 									throw new Exception($"No se realizaron cambios para el código {TxtCodigo.Text}.");
+								}
+
+
+								//ahora actualizo las listas de precios
+								for (int i = 1; i < dataGridView1.Rows.Count; i++)
+								{
+									precioBase = double.Parse(dataGridView1.Rows[i].Cells[3].Value.ToString()) / (1 + (imp / 100));
+
+									cmd.CommandText = $"UPDATE tblprecios set pre_art={precioBase}," +
+										$"pre_iva={dataGridView1.Rows[i].Cells[3].Value} where cod1_art='{TxtCodigo.Text}' and cod_precio='{dataGridView1.Rows[i].Cells[0].Value}';";
+									int result = await cmd.ExecuteNonQueryAsync();
 								}
 
 								// Confirmar transacción
@@ -214,12 +257,75 @@ namespace ActualizarPrecios
 			}
 		}
 
-		private void TxtPrecioNuevo_TextChanged(object sender, EventArgs e)
+		private async void TxtPrecioNuevo_TextChanged(object sender, EventArgs e)
 		{
-			if (TxtPrecioNuevo.Text != "")
+			MySqlConnection con = new MySqlConnection(ConfigurationManager.ConnectionStrings["labajadita1"].ConnectionString);
+
+			if (dataGridView1.Columns.Count > 3)
 			{
-				double precioNuevo = double.Parse(TxtPrecioNuevo.Text);
-				lblPrecioActualizado.Text = $"Nuevo margen: {(((precioNuevo - costoUCO) / precioNuevo) * 100).ToString("N2")}%";
+				dataGridView1.Columns.RemoveAt(3);
+				dataGridView1.Columns.RemoveAt(3);
+			}
+
+			if (TxtPrecioNuevo.Text == "")
+			{
+				return;
+			}
+
+			if (dataGridView1.DataSource != null)
+			{
+				dataGridView1.Columns.Add("Column4", "Nuevo Precio");
+				dataGridView1.Columns.Add("Column5", "Nuevo Margen");
+			}
+
+			decimal precio = decimal.Parse(TxtPrecioNuevo.Text);
+
+			try
+			{
+				await con.OpenAsync();
+
+				MySqlCommand cmd = con.CreateCommand();
+
+				for (int i = 0; i < dataGridView1.Rows.Count; i++)
+				{
+					cmd.CommandText = "select des_precio " +
+						"from tblprecios pre " +
+						"inner join tblcatprecios listas on listas.COD_PRECIO=pre.COD_PRECIO " +
+						$"where pre.cod1_art='{TxtCodigo.Text}' and pre.cod_precio='{dataGridView1.Rows[i].Cells[0].Value}';";
+
+					var porcentaje = await cmd.ExecuteScalarAsync();
+
+					if (decimal.TryParse(porcentaje == null ? "1" : porcentaje.ToString(), out decimal porc))
+					{
+						decimal precioNuevo = precio * porc;
+						if (precio - precioNuevo >= 1)
+						{
+							precioNuevo = precio - 1;
+						}
+
+						decimal margenNuevo = (precioNuevo - costoUCO) / precioNuevo;
+
+						dataGridView1.Rows[i].Cells[3].Value = precioNuevo;
+						dataGridView1.Rows[i].Cells[4].Value = (margenNuevo * 100).ToString("N2");
+					}
+					else
+					{
+						decimal precioNuevo = decimal.Parse(TxtPrecioNuevo.Text);
+						decimal margen = ((precioNuevo - costoUCO) / precioNuevo) * 100;
+
+						dataGridView1.Rows[i].Cells[3].Value = precioNuevo;
+						dataGridView1.Rows[i].Cells[4].Value = (margen).ToString("N2");
+					}
+				}
+			}
+			catch (ArgumentOutOfRangeException) { }
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.Message);
+			}
+			finally
+			{
+				await con.CloseAsync();
 			}
 		}
 
@@ -229,6 +335,48 @@ namespace ActualizarPrecios
 			{
 				e.Handled = true;
 			}
+		}
+
+		private void FrmPrincipal_Load(object sender, EventArgs e)
+		{
+
+		}
+
+		object valorCeldaOriginal;
+
+		private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+		{
+			// Obtener el precio base
+			decimal PrecioBase = decimal.Parse(lblPrecio.Text.Substring(1));
+
+			// Obtener el valor de la segunda columna en la fila editada
+			object lista = dataGridView1.Rows[e.RowIndex].Cells[0].Value;
+			object valorCelda = dataGridView1.Rows[e.RowIndex].Cells[3].Value;
+			if (valorCelda != null && decimal.TryParse(valorCelda.ToString(), out decimal precioSeleccionado))
+			{
+				if (lista.ToString() == "ABARREY" || lista.ToString() == "General")
+					return;
+				if (PrecioBase - precioSeleccionado >= 1)
+				{
+					MessageBox.Show("El precio introducido supera el limite de descuento", "LA BAJADITA - No se puede asignar ese precio",
+						MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					dataGridView1.Rows[e.RowIndex].Cells[3].Value = valorCeldaOriginal.ToString();
+					return;
+				}
+			}
+			else
+			{
+				MessageBox.Show("El valor de la celda no es válido.");
+			}
+		}
+
+		private void dataGridView1_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+		{
+			try
+			{
+				valorCeldaOriginal = dataGridView1.Rows[e.RowIndex].Cells[3].Value;
+			}
+			catch (ArgumentOutOfRangeException) { }
 		}
 	}
 }

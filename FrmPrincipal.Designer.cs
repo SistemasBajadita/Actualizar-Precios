@@ -28,6 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.BtnSearchProduct = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
@@ -45,6 +48,10 @@
 			this.lblCosto = new System.Windows.Forms.Label();
 			this.label8 = new System.Windows.Forms.Label();
 			this.lblMargen = new System.Windows.Forms.Label();
+			this.dataGridView1 = new System.Windows.Forms.DataGridView();
+			this.rbJardines = new System.Windows.Forms.RadioButton();
+			this.rbColinas = new System.Windows.Forms.RadioButton();
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// BtnSearchProduct
@@ -110,20 +117,21 @@
 			// 
 			this.lblPrecio.AutoSize = true;
 			this.lblPrecio.Font = new System.Drawing.Font("Lucida Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblPrecio.Location = new System.Drawing.Point(367, 193);
+			this.lblPrecio.Location = new System.Drawing.Point(231, 193);
 			this.lblPrecio.Name = "lblPrecio";
-			this.lblPrecio.Size = new System.Drawing.Size(0, 23);
+			this.lblPrecio.Size = new System.Drawing.Size(68, 23);
 			this.lblPrecio.TabIndex = 7;
+			this.lblPrecio.Text = "$0.00";
 			// 
 			// label5
 			// 
 			this.label5.AutoSize = true;
 			this.label5.Font = new System.Drawing.Font("Lucida Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label5.Location = new System.Drawing.Point(292, 193);
+			this.label5.Location = new System.Drawing.Point(104, 193);
 			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(69, 23);
+			this.label5.Size = new System.Drawing.Size(121, 23);
 			this.label5.TabIndex = 6;
-			this.label5.Text = "Precio";
+			this.label5.Text = "Precio base";
 			// 
 			// label6
 			// 
@@ -170,7 +178,7 @@
 			// 
 			this.lblPrecioActualizado.AutoSize = true;
 			this.lblPrecioActualizado.Font = new System.Drawing.Font("Lucida Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblPrecioActualizado.Location = new System.Drawing.Point(352, 316);
+			this.lblPrecioActualizado.Location = new System.Drawing.Point(373, 307);
 			this.lblPrecioActualizado.Name = "lblPrecioActualizado";
 			this.lblPrecioActualizado.Size = new System.Drawing.Size(0, 23);
 			this.lblPrecioActualizado.TabIndex = 12;
@@ -179,7 +187,7 @@
 			// 
 			this.label4.AutoSize = true;
 			this.label4.Font = new System.Drawing.Font("Lucida Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label4.Location = new System.Drawing.Point(290, 227);
+			this.label4.Location = new System.Drawing.Point(159, 230);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(66, 23);
 			this.label4.TabIndex = 13;
@@ -189,16 +197,17 @@
 			// 
 			this.lblCosto.AutoSize = true;
 			this.lblCosto.Font = new System.Drawing.Font("Lucida Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblCosto.Location = new System.Drawing.Point(367, 227);
+			this.lblCosto.Location = new System.Drawing.Point(231, 230);
 			this.lblCosto.Name = "lblCosto";
-			this.lblCosto.Size = new System.Drawing.Size(0, 23);
+			this.lblCosto.Size = new System.Drawing.Size(68, 23);
 			this.lblCosto.TabIndex = 14;
+			this.lblCosto.Text = "$0.00";
 			// 
 			// label8
 			// 
 			this.label8.AutoSize = true;
 			this.label8.Font = new System.Drawing.Font("Lucida Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label8.Location = new System.Drawing.Point(530, 193);
+			this.label8.Location = new System.Drawing.Point(395, 193);
 			this.label8.Name = "label8";
 			this.label8.Size = new System.Drawing.Size(84, 23);
 			this.label8.TabIndex = 15;
@@ -208,17 +217,80 @@
 			// 
 			this.lblMargen.AutoSize = true;
 			this.lblMargen.Font = new System.Drawing.Font("Lucida Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblMargen.Location = new System.Drawing.Point(620, 193);
+			this.lblMargen.Location = new System.Drawing.Point(485, 193);
 			this.lblMargen.Name = "lblMargen";
-			this.lblMargen.Size = new System.Drawing.Size(0, 23);
+			this.lblMargen.Size = new System.Drawing.Size(36, 23);
 			this.lblMargen.TabIndex = 16;
+			this.lblMargen.Text = "0%";
+			// 
+			// dataGridView1
+			// 
+			this.dataGridView1.AllowUserToAddRows = false;
+			this.dataGridView1.AllowUserToDeleteRows = false;
+			dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
+			dataGridViewCellStyle4.Font = new System.Drawing.Font("Lucida Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			dataGridViewCellStyle4.ForeColor = System.Drawing.Color.Black;
+			this.dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
+			this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+			dataGridViewCellStyle5.Font = new System.Drawing.Font("Lucida Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			dataGridViewCellStyle5.ForeColor = System.Drawing.Color.White;
+			dataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+			dataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.White;
+			dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
+			this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dataGridView1.EnableHeadersVisualStyles = false;
+			this.dataGridView1.Location = new System.Drawing.Point(176, 333);
+			this.dataGridView1.MultiSelect = false;
+			this.dataGridView1.Name = "dataGridView1";
+			this.dataGridView1.RowHeadersVisible = false;
+			this.dataGridView1.RowHeadersWidth = 51;
+			dataGridViewCellStyle6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(224)))), ((int)(((byte)(192)))));
+			dataGridViewCellStyle6.Font = new System.Drawing.Font("Lucida Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			dataGridViewCellStyle6.ForeColor = System.Drawing.Color.Black;
+			this.dataGridView1.RowsDefaultCellStyle = dataGridViewCellStyle6;
+			this.dataGridView1.RowTemplate.Height = 24;
+			this.dataGridView1.Size = new System.Drawing.Size(586, 259);
+			this.dataGridView1.TabIndex = 17;
+			this.dataGridView1.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dataGridView1_CellBeginEdit);
+			this.dataGridView1.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellEndEdit);
+			// 
+			// rbJardines
+			// 
+			this.rbJardines.AutoSize = true;
+			this.rbJardines.Checked = true;
+			this.rbJardines.Font = new System.Drawing.Font("Lucida Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.rbJardines.Location = new System.Drawing.Point(720, 88);
+			this.rbJardines.Name = "rbJardines";
+			this.rbJardines.Size = new System.Drawing.Size(110, 27);
+			this.rbJardines.TabIndex = 18;
+			this.rbJardines.TabStop = true;
+			this.rbJardines.Text = "Jardines";
+			this.rbJardines.UseVisualStyleBackColor = true;
+			// 
+			// rbColinas
+			// 
+			this.rbColinas.AutoSize = true;
+			this.rbColinas.Font = new System.Drawing.Font("Lucida Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.rbColinas.Location = new System.Drawing.Point(836, 88);
+			this.rbColinas.Name = "rbColinas";
+			this.rbColinas.Size = new System.Drawing.Size(103, 27);
+			this.rbColinas.TabIndex = 19;
+			this.rbColinas.TabStop = true;
+			this.rbColinas.Text = "Colinas";
+			this.rbColinas.UseVisualStyleBackColor = true;
 			// 
 			// FrmPrincipal
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(252)))), ((int)(((byte)(145)))), ((int)(((byte)(58)))));
-			this.ClientSize = new System.Drawing.Size(986, 351);
+			this.ClientSize = new System.Drawing.Size(986, 604);
+			this.Controls.Add(this.rbColinas);
+			this.Controls.Add(this.rbJardines);
+			this.Controls.Add(this.dataGridView1);
 			this.Controls.Add(this.lblMargen);
 			this.Controls.Add(this.label8);
 			this.Controls.Add(this.lblCosto);
@@ -239,6 +311,8 @@
 			this.Name = "FrmPrincipal";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Actualizador de Precios";
+			this.Load += new System.EventHandler(this.FrmPrincipal_Load);
+			((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -263,6 +337,9 @@
         private System.Windows.Forms.Label lblCosto;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label lblMargen;
-    }
+		private System.Windows.Forms.DataGridView dataGridView1;
+		private System.Windows.Forms.RadioButton rbJardines;
+		private System.Windows.Forms.RadioButton rbColinas;
+	}
 }
 
